@@ -7,6 +7,7 @@ const puppeteer = require("puppeteer");
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
+const PORT = 3000;
 
 app.use(cors());
 app.use(express.static("public"));
@@ -134,7 +135,6 @@ io.on("connection", async (socket) => {
   });
 });
 
-// server.listen(3000, () => {
-//   console.log("Server running on http://localhost:3000");
-// });
-module.exports = server;
+server.listen(PORT, () => {
+  console.log(`Server running on http://127.0.0.1:${PORT}`);
+});
