@@ -234,10 +234,13 @@
 
     <script type="module">
         import { io } from "https://cdn.jsdelivr.net/npm/socket.io-client@4.5.4/dist/socket.io.esm.min.js";
+        // Dynamically set BASE_URL based on the current environment
+        const BASE_URL =
+            window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+                ? "http://127.0.0.1:3000" // Local backend for development
+                : "https://rocketstock.vercel.app"; // Production backend
 
-
-
-        const socket = io("https://rocketstock.vercel.app", {
+        const socket = io(BASE_URL, {
             transports: ["polling"]
         });
 

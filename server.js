@@ -1,12 +1,22 @@
 const express = require("express");
 const http = require("http");
-const socketIo = require("socket.io");
+const { socketIo, Server } = require("socket.io");
 const axios = require("axios");
 const cors = require("cors");
 const puppeteer = require("puppeteer");
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
+const BASE_URL =
+  process.env.NODE_ENV === "development"
+    ? "http://127.0.0.1:3000/" // Local backend for development
+    : "https://rocketstock.vercel.app"; // Production backend
+
+const io = new Server(server, {
+  cors: {
+    origin: BASE_URL, // Replace with your frontend URL
+    methods: ["GET", "POST"],
+  },
+});
 const PORT = 3000;
 
 app.use(cors());
