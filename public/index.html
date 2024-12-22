@@ -232,7 +232,8 @@
     </div>
 
     <script>
-        const socket = io();
+        const { io } = require("socket.io-client");
+        const socket = io("https://rocketstock.vercel.app/");
 
         // Show loader when socket connects
         socket.on("connect", () => {
