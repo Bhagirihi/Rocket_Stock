@@ -231,9 +231,15 @@
         <div class="card-grid" id="stockData"></div>
     </div>
 
-    <script>
-        const { io } = require("socket.io-client");
-        const socket = io("https://rocketstock.vercel.app/");
+
+    <script type="module">
+        import { io } from "https://cdn.jsdelivr.net/npm/socket.io-client@4.5.4/dist/socket.io.esm.min.js";
+
+
+
+        const socket = io("https://rocketstock.vercel.app", {
+            transports: ["polling"]
+        });
 
         // Show loader when socket connects
         socket.on("connect", () => {
