@@ -14,13 +14,12 @@ const PORT = 3000;
 app.use(cors());
 app.use(express.static("public"));
 
-// app.get("/", function (req, res) {
-//   console.log("/ request called");
-//   server.listen(PORT, () => {
-//     console.log(`Server running on http://127.0.0.1:${PORT}`);
-//   });
-//   res.send("Welcome to GeeksforGeeks");
-// });
+app.get("/", function (req, res) {
+  server.listen(PORT, () => {
+    console.log(`Server running on http://127.0.0.1:${PORT}`);
+  });
+  server.emit("request", req, res); // Emit the request to the HTTP server
+});
 
 let headers = {
   "User-Agent":
