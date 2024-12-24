@@ -10,15 +10,10 @@
         {
             "src": "/(.*)",
             "dest": "api/server.js"
-        }
-        ,
-        {
-            "source": "/",
-            "destination": "/index.html"
         },
         {
-            "source": "/api/(.*)",
-            "destination": "/api/"
+            "src": "/(.*)",
+            "dest": "/index.html"
         }
     ]
 }
