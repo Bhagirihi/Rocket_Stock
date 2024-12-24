@@ -1,6 +1,7 @@
 const express = require("express");
 const http = require("http");
 const socketIo = require("socket.io");
+const Server = require("socket.io")
 const axios = require("axios");
 const cors = require("cors");
 const puppeteer = require("puppeteer");
@@ -140,9 +141,31 @@ io.on("connection", async (socket) => {
   });
 });
 
-// server.listen(PORT)
-
 // Vercel expects a single function to handle requests
 module.exports = (req, res) => {
+  if (!res.socket.server.io) {
+    console.log("Initializing Socket.io...");
+    const io = new Server(res.socket.server, {
+      cors: {
+        origin: "*",
+      },
+    });
+
+    io.on("connection", (socket) => {
+      console.log("New client connected");
+
+      socket.on("fetchData", async () => {
+        // Fetch data logic here
+        socket.emit("updateData", { message: "Data fetched successfully" });
+      });
+
+      socket.on("disconnect", () => {
+        console.log("Client disconnected");
+      });
+    });
+
+    res.socket.server.io = io;
+  }
   server.emit("request", req, res); // Emit the request to the HTTP server
+  res.end();
 };

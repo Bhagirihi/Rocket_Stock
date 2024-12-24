@@ -4,6 +4,14 @@
         {
             "src": "api/server.js",
             "use": "@vercel/node"
+        },
+        {
+            "source": "/",
+            "destination": "/index.html"
+        },
+        {
+            "source": "/api/(.*)",
+            "destination": "/api/"
         }
     ],
     "routes": [
