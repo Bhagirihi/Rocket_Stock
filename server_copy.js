@@ -1,26 +1,32 @@
 const express = require("express");
 const http = require("http");
-const { socketIo, Server } = require("socket.io");
+const socketIo = require("socket.io");
 const axios = require("axios");
 const cors = require("cors");
 const puppeteer = require("puppeteer");
 const app = express();
 const server = http.createServer(app);
-const BASE_URL =
-  process.env.NODE_ENV === "development"
-    ? "http://127.0.0.1:3000/" // Local backend for development
-    : "https://rocketstock.vercel.app"; // Production backend
 
-const io = new Server(server, {
-  cors: {
-    origin: BASE_URL, // Replace with your frontend URL
-    methods: ["GET", "POST"],
-  },
-});
+//   process.env.NODE_ENV === "development"
+//     ? "http://127.0.0.1:3000/" // Local backend for development
+//     : "https://rocketstock.vercel.app"; // Production backend
+
+// const io = new Server(server, {
+//   cors: {
+//     origin: BASE_URL, // Replace with your frontend URL
+//     methods: ["GET", "POST"],
+//   },
+// });
+const io = socketIo(server);
 const PORT = 3000;
 
 app.use(cors());
 app.use(express.static("public"));
+
+app.get("/user", function (req, res) {
+  console.log("/user request called");
+  res.send("Welcome to GeeksforGeeks");
+});
 
 let headers = {
   "User-Agent":
@@ -145,6 +151,11 @@ io.on("connection", async (socket) => {
   });
 });
 
+// app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
+
 server.listen(PORT, () => {
   console.log(`Server running on http://127.0.0.1:${PORT}`);
 });
+// module.exports = (req, res) => {
+//   res.send(server);
+// };
