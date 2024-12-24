@@ -13,13 +13,13 @@ const PORT = 3000;
 app.use(cors());
 app.use(express.static("public"));
 
-app.get("/", function (req, res) {
-  console.log("/ request called");
-  server.listen(PORT, () => {
-    console.log(`Server running on http://127.0.0.1:${PORT}`);
-  });
-  res.send("Welcome to GeeksforGeeks");
-});
+// app.get("/", function (req, res) {
+//   console.log("/ request called");
+//   server.listen(PORT, () => {
+//     console.log(`Server running on http://127.0.0.1:${PORT}`);
+//   });
+//   res.send("Welcome to GeeksforGeeks");
+// });
 
 let headers = {
   "User-Agent":
@@ -140,7 +140,9 @@ io.on("connection", async (socket) => {
   });
 });
 
-// Vercel expects a single function to handle requests
-module.exports = (req, res) => {
-  server.emit("request", req, res); // Emit the request to the HTTP server
-};
+server.listen(PORT)
+
+// // Vercel expects a single function to handle requests
+// module.exports = (req, res) => {
+//   server.emit("request", req, res); // Emit the request to the HTTP server
+// };
