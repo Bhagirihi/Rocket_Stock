@@ -140,9 +140,9 @@ io.on("connection", async (socket) => {
   });
 });
 
-server.listen(PORT)
+// server.listen(PORT)
 
-// // Vercel expects a single function to handle requests
-// module.exports = (req, res) => {
-//   server.emit("request", req, res); // Emit the request to the HTTP server
-// };
+// Vercel expects a single function to handle requests
+module.exports = (req, res) => {
+  server.emit("request", req, res); // Emit the request to the HTTP server
+};
