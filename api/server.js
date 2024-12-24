@@ -143,9 +143,3 @@ io.on("connection", async (socket) => {
 server.listen(PORT, () => {
   console.log(`Server running on ${PORT}`);
 });
-
-// Export handler for Vercel
-module.exports = (req, res) => {
-
-  server.emit("request", req, res); // Emit the request to the HTTP server
-};
