@@ -1,23 +1,20 @@
 const express = require("express");
 const http = require("http");
-const socketIo = require("socket.io");
-const Server = require("socket.io");
+const {Server} = require("socket.io");
 const axios = require("axios");
 const cors = require("cors");
 const puppeteer = require("puppeteer");
 const app = express();
 const server = http.createServer(app);
 
-let io = socketIo(server);
+const io = new Server(server);
 const PORT = 3000;
 
 app.use(cors());
 app.use(express.static("public"));
 
 app.get("/", function (req, res) {
-  server.listen(PORT, () => {
-    console.log(`Server running on http://127.0.0.1:${PORT}`);
-  });
+ 
   server.emit("request", req, res); // Emit the request to the HTTP server
 });
 
@@ -29,26 +26,24 @@ let headers = {
 };
 
 const getCookiesWithPuppeteer = async () => {
-  const browser = await puppeteer.launch({ headless: true }); // Launch Puppeteer in headless mode
-  const page = await browser.newPage();
+  try {
+    const browser = await puppeteer.launch({ headless: "new" });
+    const page = await browser.newPage();
+    await page.setUserAgent(
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0 Safari/537.36"
+    );
+    await page.goto("https://www.nseindia.com", { waitUntil: "domcontentloaded" });
 
-  await page.setUserAgent(
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0 Safari/537.36"
-  );
+    const cookies = await page.cookies();
+    await browser.close();
 
-  await page.goto("https://www.nseindia.com", {
-    waitUntil: "domcontentloaded",
-  });
-
-  const cookies = await page.cookies();
-  const cookieHeader = cookies
-    .map((cookie) => `${cookie.name}=${cookie.value}`)
-    .join("; ");
-
-  await browser.close(); // Close the browser
-
-  return cookieHeader;
+    return cookies.map((cookie) => `${cookie.name}=${cookie.value}`).join("; ");
+  } catch (error) {
+    console.error("Error fetching cookies:", error.message);
+    throw new Error("Failed to retrieve cookies");
+  }
 };
+
 
 const fetchData = async (url) => {
   try {
@@ -111,29 +106,29 @@ io.on("connection", async (socket) => {
   socket.emit("loader", false);
 
   socket.on("fetchData", async () => {
-    const nifty50 = await fetchData(
-      "https://www.nseindia.com/api/equity-stockIndices?index=NIFTY%2050"
-    );
-    const niftyBank = await fetchData(
-      "https://www.nseindia.com/api/equity-stockIndices?index=NIFTY%20BANK"
-    );
-    const oiData = await fetchData(
-      "https://www.nseindia.com/api/live-analysis-oi-spurts-underlyings"
-    );
-
-    if (nifty50 && niftyBank && oiData) {
-      const mergedData = mergeDataBySymbol(
-        nifty50.data,
-        niftyBank.data,
-        oiData.data
+    try {
+      const nifty50 = await fetchData(
+        "https://www.nseindia.com/api/equity-stockIndices?index=NIFTY%2050"
       );
-      console.log("mergedData", JSON.stringify(mergedData));
-
-      socket.emit("updateData", mergedData);
-    } else {
-      socket.emit("error", "Failed to fetch data");
+      const niftyBank = await fetchData(
+        "https://www.nseindia.com/api/equity-stockIndices?index=NIFTY%20BANK"
+      );
+      const oiData = await fetchData(
+        "https://www.nseindia.com/api/live-analysis-oi-spurts-underlyings"
+      );
+  
+      if (nifty50?.data && niftyBank?.data && oiData?.data) {
+        const mergedData = mergeDataBySymbol(nifty50.data, niftyBank.data, oiData.data);
+        socket.emit("updateData", mergedData);
+      } else {
+        throw new Error("Data fetch incomplete");
+      }
+    } catch (error) {
+      console.error("Data fetch error:", error.message);
+      socket.emit("error", "Failed to fetch stock data");
     }
   });
+  
 
   socket.on("disconnect", () => {
     console.log("Client disconnected");

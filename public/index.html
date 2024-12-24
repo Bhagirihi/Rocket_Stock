@@ -238,10 +238,8 @@
     <script type="module">
         import { io } from "https://cdn.jsdelivr.net/npm/socket.io-client@4.8.1/dist/socket.io.esm.min.js";
         // Dynamically set BASE_URL based on the current environment
-        const BASE_URL =
-            window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
-                ? "http://127.0.0.1:3000" // Local backend for development
-                : `http://${window.location.hostname}:3000`; // Production backend
+        const BASE_URL = `${window.location.protocol}//${window.location.hostname}:3000`;
+
 
         const socket = io(BASE_URL, {
             //transports: ["polling"]
@@ -283,7 +281,7 @@
 
             data.forEach((item) => {
 
-                if (item.symbol != "NIFTY BANK" || item.symbol != "NIFTY 50") {
+                if (item.symbol !== "NIFTY BANK" && item.symbol !== "NIFTY 50") {
                     totalPrice += item.lastPrice || 0;
                     totalStocks++;
 
