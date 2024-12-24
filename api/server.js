@@ -7,16 +7,17 @@ const puppeteer = require("puppeteer");
 const app = express();
 const server = http.createServer(app);
 
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000/",
+    methods: ["GET", "POST"],
+  },
+});
 const HOST = "0.0.0.0";
-const PORT = 10000;
+const PORT = 3000;
 
 app.use(cors());
 app.use(express.static("public"));
-
-app.get("/", function (req, res) {
-  server.emit("request", req, res); // Emit the request to the HTTP server
-});
 
 let headers = {
   "User-Agent":
@@ -138,6 +139,13 @@ io.on("connection", async (socket) => {
     console.log("Client disconnected");
   });
 });
+
+if (process.env.NODE_ENV === "production") {
+  app.get("*", (req, res) => {
+    const indexFile = path.join(__dirname, "public", "index.html");
+    return res.sendFile(indexFile);
+  });
+}
 
 server.listen(PORT, () => {
   console.log(`Server running on ${PORT}`);
