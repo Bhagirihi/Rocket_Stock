@@ -1,6 +1,6 @@
 const express = require("express");
 const http = require("http");
-const {Server} = require("socket.io");
+const { Server } = require("socket.io");
 const axios = require("axios");
 const cors = require("cors");
 const puppeteer = require("puppeteer");
@@ -8,13 +8,13 @@ const app = express();
 const server = http.createServer(app);
 
 const io = new Server(server);
-const PORT = 3000;
+const HOST = "0.0.0.0";
+const PORT = 10000;
 
 app.use(cors());
 app.use(express.static("public"));
 
 app.get("/", function (req, res) {
- 
   server.emit("request", req, res); // Emit the request to the HTTP server
 });
 
@@ -32,7 +32,9 @@ const getCookiesWithPuppeteer = async () => {
     await page.setUserAgent(
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0 Safari/537.36"
     );
-    await page.goto("https://www.nseindia.com", { waitUntil: "domcontentloaded" });
+    await page.goto("https://www.nseindia.com", {
+      waitUntil: "domcontentloaded",
+    });
 
     const cookies = await page.cookies();
     await browser.close();
@@ -43,7 +45,6 @@ const getCookiesWithPuppeteer = async () => {
     throw new Error("Failed to retrieve cookies");
   }
 };
-
 
 const fetchData = async (url) => {
   try {
@@ -116,9 +117,13 @@ io.on("connection", async (socket) => {
       const oiData = await fetchData(
         "https://www.nseindia.com/api/live-analysis-oi-spurts-underlyings"
       );
-  
+
       if (nifty50?.data && niftyBank?.data && oiData?.data) {
-        const mergedData = mergeDataBySymbol(nifty50.data, niftyBank.data, oiData.data);
+        const mergedData = mergeDataBySymbol(
+          nifty50.data,
+          niftyBank.data,
+          oiData.data
+        );
         socket.emit("updateData", mergedData);
       } else {
         throw new Error("Data fetch incomplete");
@@ -128,7 +133,6 @@ io.on("connection", async (socket) => {
       socket.emit("error", "Failed to fetch stock data");
     }
   });
-  
 
   socket.on("disconnect", () => {
     console.log("Client disconnected");
